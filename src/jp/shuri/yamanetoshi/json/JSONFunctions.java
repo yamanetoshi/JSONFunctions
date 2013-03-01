@@ -6,7 +6,6 @@ import java.io.InputStreamReader;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
@@ -15,14 +14,13 @@ import org.json.JSONObject;
 import android.util.Log;
 
 public class JSONFunctions {
-    public static JSONObject getJSONfromURL(String url){
+    public static JSONObject getJSONfromURL(String url, DefaultHttpClient httpclient){
         InputStream is = null;
         String result = "";
         JSONObject jArray = null;
         
         //http post
         try{
-                HttpClient httpclient = new DefaultHttpClient();
                 HttpGet httpget = new HttpGet(url);
                 HttpResponse response = httpclient.execute(httpget);
                 HttpEntity entity = response.getEntity();
