@@ -1,56 +1,48 @@
 package jp.shuri.yamanetoshi.json;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.util.Log;
-
 public class JSONFunctions {
-    public static JSONObject getJSONfromURL(String url, DefaultHttpClient httpclient){
+    public static JSONObject getJSONfromURL(String url, DefaultHttpClient httpclient)
+    	throws IOException, ClientProtocolException, RuntimeException, JSONException {
         InputStream is = null;
-        String result = "";
-        JSONObject jArray = null;
         
-        //http post
-        try{
-                HttpGet httpget = new HttpGet(url);
-                HttpResponse response = httpclient.execute(httpget);
-                HttpEntity entity = response.getEntity();
-                is = entity.getContent();
+        HttpGet httpget = new HttpGet(url);
+        is = httpclient.execute(httpget,
+				new ResponseHandler<InputStream>() {
 
-        }catch(Exception e){
-                Log.e("log_tag", "Error in http connection "+e.toString());
-        }
+					@Override
+					public InputStream handleResponse(HttpResponse response)
+							throws ClientProtocolException, IOException {
+						switch (response.getStatusLine().getStatusCode()) {
+						case HttpStatus.SC_OK:
+							return response.getEntity().getContent();
+						default:
+							throw new RuntimeException("");
+						}
+					}
+        });
 
-        //convert response to string
-        try{
-                BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-                StringBuilder sb = new StringBuilder();
-                String line = null;
-                while ((line = reader.readLine()) != null) {
-                        sb.append(line + "\n");
-                }
-                is.close();
-                result=sb.toString();
-        }catch(Exception e){
-                Log.e("log_tag", "Error converting result "+e.toString());
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        StringBuilder sb = new StringBuilder();
+        String line = null;
+        while ((line = reader.readLine()) != null) {
+        	sb.append(line + "\n");
         }
+        is.close();
         
-        try{
-            
-            jArray = new JSONObject(result);            
-        }catch(JSONException e){
-                Log.e("log_tag", "Error parsing data "+e.toString());
-        }
-    
-        return jArray;
+        return new JSONObject(sb.toString());            
     }
 }
