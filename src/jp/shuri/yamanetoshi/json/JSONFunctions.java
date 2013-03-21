@@ -30,7 +30,8 @@ public class JSONFunctions {
 						case HttpStatus.SC_OK:
 							return response.getEntity().getContent();
 						default:
-							throw new RuntimeException("");
+							throw new RuntimeException("HTTP Status is " + 
+										   response.getStatusLine().getStatusCode());
 						}
 					}
         });
