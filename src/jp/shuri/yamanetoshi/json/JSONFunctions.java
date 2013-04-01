@@ -1,49 +1,85 @@
 package jp.shuri.yamanetoshi.json;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.util.List;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.apache.http.util.EntityUtils;
 
 public class JSONFunctions {
-    public static JSONObject getJSONfromURL(String url, DefaultHttpClient httpclient)
-    	throws IOException, ClientProtocolException, RuntimeException, JSONException {
-        InputStream is = null;
-        
-        HttpGet httpget = new HttpGet(url);
-        is = httpclient.execute(httpget,
-				new ResponseHandler<InputStream>() {
+	public static String getHTTPResponseBodyString(HttpRequestBase request,
+			DefaultHttpClient httpclient)
+		throws IOException, ClientProtocolException, RuntimeException {
+		return httpclient.execute(request,
+				new ResponseHandler<String>() {
 
-					@Override
-					public InputStream handleResponse(HttpResponse response)
-							throws ClientProtocolException, IOException {
-						switch (response.getStatusLine().getStatusCode()) {
-						case HttpStatus.SC_OK:
-							return response.getEntity().getContent();
-						default:
-							throw new RuntimeException("HTTP Status is " + 
-										   response.getStatusLine().getStatusCode());
-						}
-					}
-        });
+			@Override
+			public String handleResponse(HttpResponse response)
+					throws ClientProtocolException, IOException {
+				switch (response.getStatusLine().getStatusCode()) {
+				case HttpStatus.SC_OK:
+					return EntityUtils.toString(response.getEntity(), "UTF-8");
+				default:
+					throw new RuntimeException("HTTP Status is " + 
+								   response.getStatusLine().getStatusCode());
+				}
+			}
+		});
+	}
+	
+    public static String GETfromURL(String url, DefaultHttpClient httpclient)
+    	throws IOException, ClientProtocolException, RuntimeException {
+    	
+        HttpGet request = new HttpGet(url);
+        return getHTTPResponseBodyString(request, httpclient);
+    }
+    
+    public static String POSTfromURL(String url, DefaultHttpClient httpclient, 
+    		List<NameValuePair> params) 
+    				throws IOException, ClientProtocolException, RuntimeException {
+    	
+    	HttpPost request = new HttpPost(url);
+    	request.setEntity(new UrlEncodedFormEntity(params));
+    	return getHTTPResponseBodyString(request, httpclient);
+    }
+    
+    public static String PUTfromURL(String url, DefaultHttpClient httpclient, 
+    		List<NameValuePair> params) 
+    				throws IOException, ClientProtocolException, RuntimeException {
+    	
+    	HttpPut request = new HttpPut(url);
+    	request.setEntity(new UrlEncodedFormEntity(params));
+    	return getHTTPResponseBodyString(request, httpclient);
+    }
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        StringBuilder sb = new StringBuilder();
-        String line = null;
-        while ((line = reader.readLine()) != null) {
-        	sb.append(line + "\n");
-        }
-        is.close();
-        
-        return new JSONObject(sb.toString());            
+    public static String DELETEfromURL(String url, DefaultHttpClient httpclient)
+    				throws IOException, ClientProtocolException, RuntimeException {
+		return httpclient.execute(new HttpDelete(url),
+				new ResponseHandler<String>() {
+
+			@Override
+			public String handleResponse(HttpResponse response)
+					throws ClientProtocolException, IOException {
+				switch (response.getStatusLine().getStatusCode()) {
+				case HttpStatus.SC_OK:
+					return null;
+				default:
+					throw new RuntimeException("HTTP Status is " + 
+								   response.getStatusLine().getStatusCode());
+				}
+			}
+		});
+
     }
 }
