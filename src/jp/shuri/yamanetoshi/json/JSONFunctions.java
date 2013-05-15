@@ -13,12 +13,12 @@ import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 
 public class JSONFunctions {
-	public static String getHTTPResponseBodyString(HttpRequestBase request,
+	public static String getHTTPResponseBodyString(HttpUriRequest request,
 			DefaultHttpClient httpclient)
 		throws IOException, ClientProtocolException, RuntimeException {
 		return httpclient.execute(request,
