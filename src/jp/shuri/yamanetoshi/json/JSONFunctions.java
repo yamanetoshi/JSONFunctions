@@ -50,7 +50,7 @@ public class JSONFunctions {
     				throws IOException, ClientProtocolException, RuntimeException {
     	
     	HttpPost request = new HttpPost(url);
-    	request.setEntity(new UrlEncodedFormEntity(params));
+    	request.setEntity(new UrlEncodedFormEntity(params, "utf-8"));
     	return getHTTPResponseBodyString(request, httpclient);
     }
     
@@ -59,7 +59,7 @@ public class JSONFunctions {
     				throws IOException, ClientProtocolException, RuntimeException {
     	
     	HttpPut request = new HttpPut(url);
-    	request.setEntity(new UrlEncodedFormEntity(params));
+    	request.setEntity(new UrlEncodedFormEntity(params, "utf-8"));
     	return getHTTPResponseBodyString(request, httpclient);
     }
 
